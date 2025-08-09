@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EWT Calculator Philippines</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .calculator-card {
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
+        }
+        .result-card {
+            background: linear-gradient(to right, #434343 0%, black 100%);
+            color: white;
+        }
+        .btn-primary {
+            background-color: #1d4ed8;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        .btn-secondary {
+            background-color: #6b7280;
+            transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-5xl mx-auto">
+        <div class="calculator-card rounded-2xl p-6 md:p-10">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800">EWT Calculator</h1>
+                <p class="text-gray-500 mt-2">Calculate all EWT combinations for a given payment amount.</p>
+            </div>
+
+            <!-- Main Form -->
+            <form id="ewt-form" class="space-y-6">
+                <!-- Payment Amount Input -->
+                <div>
+                    <label for="payment-amount" class="block text-lg font-semibold text-gray-700 mb-2">Total Invoice Amount</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">₱</span>
+                        <input type="number" id="payment-amount" placeholder="e.g., 10000" class="w-full pl-8 pr-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300" step="0.01">
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+                    <button type="submit" class="w-full btn-primary text-white font-bold py-4 rounded-lg text-lg">Calculate All</button>
+                    <button type="button" id="clear-btn" class="w-full btn-secondary text-white font-bold py-4 rounded-lg text-lg">Clear</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Display -->
+        <div id="results-container" class="mt-8" style="display: none;">
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Column 1: With 12% VAT -->
+                <div class="result-card rounded-2xl p-6">
+                    <h3 class="text-xl font-bold text-center mb-4 text-white">With 12% VAT</h3>
+                    <!-- 1% Results -->
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-lg text-blue-300 mb-2">@ 1% EWT (Goods)</h4>
+                        <div class="space-y-2 text-md">
+                            <div class="flex justify-between items-center"><span class="text-gray-400">Tax Base:</span> <span id="vat-base-1" class="font-semibold"></span></div>
+                            <div class="flex justify-between items-center"><span class="text-gray-400">EWT Amount:</span> <span id="vat-ewt-1" class="font-semibold text-red-400"></span></div>
+                            <div class="flex justify-between items-center text-lg"><span class="text-green-400">Net Amount:</span> <span id="vat-net-1" class="font-bold text-green-400"></span></div>
+                        </div>
+                    </div>
+                    <hr class="border-gray-600">
+                    <!-- 2% Results -->
+                    <div class="mt-6">
+                         <h4 class="font-semibold text-lg text-blue-300 mb-2">@ 2% EWT (Services)</h4>
+                         <div class="space-y-2 text-md">
+                            <div class="flex justify-between items-center"><span class="text-gray-400">Tax Base:</span> <span id="vat-base-2" class="font-semibold"></span></div>
+                            <div class="flex justify-between items-center"><span class="text-gray-400">EWT Amount:</span> <span id="vat-ewt-2" class="font-semibold text-red-400"></span></div>
+                            <div class="flex justify-between items-center text-lg"><span class="text-green-400">Net Amount:</span> <span id="vat-net-2" class="font-bold text-green-400"></span></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Column 2: Zero-Rated / Non-VAT -->
+                <div class="result-card rounded-2xl p-6">
+                     <h3 class="text-xl font-bold text-center mb-4 text-white">Zero-Rated / Non-VAT</h3>
+                     <!-- 1% Results -->
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-lg text-blue-300 mb-2">@ 1% EWT (Goods)</h4>
+                        <div class="space-y-2 text-md">
+                            <div class="flex justify-between items-center"><span class="text-gray-400">Tax Base:</span> <span id="zero-base-1" class="font-semibold"></span></div>
+                            <div class="flex justify-between items-center"><span class="text-gray-400">EWT Amount:</span> <span id="zero-ewt-1" class="font-semibold text-red-400"></span></div>
+                            <div class="flex justify-between items-center text-lg"><span class="text-green-400">Net Amount:</span> <span id="zero-net-1" class="font-bold text-green-400"></span></div>
+                        </div>
+                    </div>
+                    <hr class="border-gray-600">
+                    <!-- 2% Results -->
+                    <div class="mt-6">
+                         <h4 class="font-semibold text-lg text-blue-300 mb-2">@ 2% EWT (Services)</h4>
+                         <div class="space-y-2 text-md">
+                            <div class="flex justify-between items-center"><span class="text-gray-400">Tax Base:</span> <span id="zero-base-2" class="font-semibold"></span></div>
+                            <div class="flex justify-between items-center"><span class="text-gray-400">EWT Amount:</span> <span id="zero-ewt-2" class="font-semibold text-red-400"></span></div>
+                            <div class="flex justify-between items-center text-lg"><span class="text-green-400">Net Amount:</span> <span id="zero-net-2" class="font-bold text-green-400"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <!-- Message Box -->
+        <div id="message-box" class="fixed top-5 right-5 bg-red-500 text-white py-2 px-4 rounded-lg shadow-lg" style="display: none;">
+            <p id="message-text"></p>
+        </div>
+    </div>
+
+    <script>
+        const ewtForm = document.getElementById('ewt-form');
+        const resultsContainer = document.getElementById('results-container');
+        const clearBtn = document.getElementById('clear-btn');
+        const messageBox = document.getElementById('message-box');
+        const messageText = document.getElementById('message-text');
+
+        // Function to show a message
+        function showMessage(message) {
+            messageText.textContent = message;
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 3000); // Hide after 3 seconds
+        }
+        
+        // Function to format numbers with commas
+        function formatNumber(num) {
+            return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        ewtForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get form value
+            const paymentAmount = parseFloat(document.getElementById('payment-amount').value);
+
+            // Validate input
+            if (isNaN(paymentAmount) || paymentAmount <= 0) {
+                showMessage('Please enter a valid payment amount.');
+                resultsContainer.style.display = 'none';
+                return;
+            }
+
+            // --- VATable Calculations ---
+            const vatableTaxBase = paymentAmount / 1.12;
+            // VAT @ 1%
+            const vatableEwt1 = vatableTaxBase * 0.01;
+            const vatableNet1 = paymentAmount - vatableEwt1;
+            // VAT @ 2%
+            const vatableEwt2 = vatableTaxBase * 0.02;
+            const vatableNet2 = paymentAmount - vatableEwt2;
+
+            // --- Zero-Rated Calculations ---
+            const zeroRatedTaxBase = paymentAmount;
+            // Zero-Rated @ 1%
+            const zeroRatedEwt1 = zeroRatedTaxBase * 0.01;
+            const zeroRatedNet1 = paymentAmount - zeroRatedEwt1;
+            // Zero-Rated @ 2%
+            const zeroRatedEwt2 = zeroRatedTaxBase * 0.02;
+            const zeroRatedNet2 = paymentAmount - zeroRatedEwt2;
+
+            // --- Update DOM for VATable column ---
+            document.getElementById('vat-base-1').textContent = `₱ ${formatNumber(vatableTaxBase)}`;
+            document.getElementById('vat-ewt-1').textContent = `- ₱ ${formatNumber(vatableEwt1)}`;
+            document.getElementById('vat-net-1').textContent = `₱ ${formatNumber(vatableNet1)}`;
+            
+            document.getElementById('vat-base-2').textContent = `₱ ${formatNumber(vatableTaxBase)}`;
+            document.getElementById('vat-ewt-2').textContent = `- ₱ ${formatNumber(vatableEwt2)}`;
+            document.getElementById('vat-net-2').textContent = `₱ ${formatNumber(vatableNet2)}`;
+
+            // --- Update DOM for Zero-Rated column ---
+            document.getElementById('zero-base-1').textContent = `₱ ${formatNumber(zeroRatedTaxBase)}`;
+            document.getElementById('zero-ewt-1').textContent = `- ₱ ${formatNumber(zeroRatedEwt1)}`;
+            document.getElementById('zero-net-1').textContent = `₱ ${formatNumber(zeroRatedNet1)}`;
+
+            document.getElementById('zero-base-2').textContent = `₱ ${formatNumber(zeroRatedTaxBase)}`;
+            document.getElementById('zero-ewt-2').textContent = `- ₱ ${formatNumber(zeroRatedEwt2)}`;
+            document.getElementById('zero-net-2').textContent = `₱ ${formatNumber(zeroRatedNet2)}`;
+
+
+            resultsContainer.style.display = 'block';
+        });
+
+        clearBtn.addEventListener('click', function() {
+            ewtForm.reset();
+            resultsContainer.style.display = 'none';
+        });
+    </script>
+
+</body>
+</html>
